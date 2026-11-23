@@ -54,5 +54,7 @@ typedef struct {
 
 uint8_t mpu_read(uint8_t reg);
 void    mpu_write(uint8_t reg, uint8_t value);
+void mpu_init(void);
+void mpu_read_accel(mpu_axis3_t *a);
 
 #endif // MPU6500_H
