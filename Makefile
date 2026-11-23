@@ -1,9 +1,13 @@
 include lib/stm32f446-bare-metal/stm32f446.mk
 
-CFLAGS = -g -O0 -mcpu=cortex-m4 -mthumb -nostdlib -Wall -Wextra \
-         $(F446_INC) -Ifirmware/stm32/include
+DRV_DIRS := $(wildcard drivers/*)
+DRV_SRCS := $(wildcard drivers/*/*.c)
+DRV_INC  := $(addprefix -I,$(DRV_DIRS))
 
-SRC = $(wildcard firmware/stm32/src/*.c)
+CFLAGS = -g -O0 -mcpu=cortex-m4 -mthumb -nostdlib -Wall -Wextra \
+         $(F446_INC) $(DRV_INC)
+
+SRC = $(wildcard src/*.c) $(DRV_SRCS)
 
 all: firmware.elf
 
@@ -16,15 +20,4 @@ clean:
 flash:
 	openocd -f interface/stlink.cfg -f target/stm32f4x.cfg -c "program firmware.elf verify reset exit"
 
-FMT_FILES := $(shell find firmware \( -name '*.c' -o -name '*.h' \) 2>/dev/null)
-
-format:
-	clang-format -i $(FMT_FILES)
-
-format-check:
-	clang-format --dry-run --Werror $(FMT_FILES)
-
-tidy:
-	clang-tidy $(FMT_FILES) -- $(F446_INC) -Ifirmware/stm32/include
-
-.PHONY: all clean flash format format-check tidy
+.PHONY: all clean flash
